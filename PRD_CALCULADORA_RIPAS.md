@@ -76,7 +76,19 @@ Esta é a diferença central do projeto. O algoritmo não trata cada medida de f
 
 ### Modelo de perda por corte
 
-A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a implementação, trata-se a barra como tendo capacidade efetiva de 2705 mm, e cada peça colocada consome (comprimento da peça + 5 mm). Isso é algebricamente equivalente a dizer que a primeira peça de cada barra não gera perda no início, mas todas as peças seguintes geram 5 mm de perda no corte que as separa da próxima.
+A barra tem capacidade real de 2700 mm. A primeira peça de cada barra entra sem perda de corte — ela começa na extremidade da barra, sem necessitar de um corte anterior. A partir da segunda peça, cada peça adicional consome (comprimento da peça + 5 mm), pois existe um corte de 5 mm separando ela da peça anterior.
+
+Regra de encaixe:
+- **Primeira peça da barra:** cabe se o espaço restante ≥ comprimento da peça. Ao colocar, reduz o espaço em (comprimento da peça).
+- **Segunda peça em diante:** cabe se o espaço restante ≥ (comprimento da peça + 5 mm). Ao colocar, reduz o espaço em (comprimento da peça + 5 mm).
+
+### Sobra exibida
+
+A sobra exibida ao usuário é calculada da seguinte forma:
+
+> **sobra exibida = espaço restante bruto − 5 mm**
+>
+> **Exceção:** se a sobra bruta for zero (barra usada integralmente), exibir **0 mm** sem desconto.
 
 ### Passo a passo do algoritmo
 
@@ -85,14 +97,17 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 2. **Ordenar** essa lista da maior para a menor (ordem decrescente). A lista do exemplo fica: [1200, 1200, 900, 900, 900].
 
 3. **Alocar barra a barra**, usando o método "First Fit Decreasing":
-   - Para cada peça da lista (da maior para a menor), tenta encaixá-la na primeira barra aberta onde ela caiba.
-   - Uma peça cabe numa barra se o espaço restante da barra for maior ou igual a (comprimento da peça + 5 mm).
-   - Se a peça não couber em nenhuma barra aberta, abre uma nova barra e coloca a peça nela.
-   - Quando uma peça é colocada numa barra, o espaço restante daquela barra é reduzido em (comprimento da peça + 5 mm).
+   - Para cada peça da lista (da maior para a menor), tenta encaixá-la na primeira barra aberta onde ela caiba, aplicando as regras de encaixe acima.
+   - Se a peça não couber em nenhuma barra aberta, abre uma nova barra e coloca a peça nela (como primeira peça, sem custo de corte inicial).
 
 4. **Registrar** em cada barra a lista de peças alocadas e o espaço restante final.
 
-5. **Exibir** o total de barras usadas e o detalhamento de cada barra.
+5. **Exibir** o total de barras usadas e o detalhamento de cada barra, com a sobra exibida calculada conforme a regra acima.
+
+### Avisos de resultado
+
+- **Barra utilizada integralmente:** quando a sobra exibida de uma barra for 0 mm, exibir junto ao detalhamento dessa barra o aviso: *"Barra utilizada integralmente — confirme se o corte inicial é necessário."*
+- **Sobra mínima:** quando a última barra do resultado tiver sobra exibida menor que 30 mm e maior que 0 mm, exibir o aviso: *"Sobra abaixo de 30 mm — considere adicionar uma barra de reserva."*
 
 ### Exemplo completo
 
@@ -104,28 +119,30 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 **Lista expandida e ordenada:** [1200, 1200, 900, 900, 900, 610, 610]
 
 **Alocação:**
-- Barra 1 (capacidade efetiva 2705):
-  - Coloca 1200 → restam 2705 − 1205 = 1500
-  - Coloca 900 → restam 1500 − 905 = 595
-  - Tenta 900: precisa de 905, não cabe
-  - Coloca 610: precisa de 615, não cabe (595 < 615)
-  - Barra 1 fechada. Peças: [1200, 900]. Sobra real: 600 − 5 = 595 mm
-  
-  > Nota: a sobra exibida ao usuário deve ser o espaço restante menos 5 mm (o último corte que separaria a sobra) ou simplesmente o espaço restante bruto — a definir na implementação, desde que seja consistente.
 
-- Barra 2 (capacidade efetiva 2705):
-  - Coloca 1200 → restam 1500
-  - Coloca 900 → restam 595
-  - Coloca 610: não cabe
-  - Barra 2 fechada. Peças: [1200, 900]. Sobra: 595 mm
+- Barra 1 (capacidade real 2700 mm):
+  - Coloca 1200 (primeira peça, sem perda de corte) → restam 2700 − 1200 = 1500
+  - Coloca 900 (segunda peça, precisa 900 + 5 = 905): 1500 ≥ 905 → restam 1500 − 905 = 595
+  - Tenta 900: precisa 905, 595 < 905 → não cabe
+  - Tenta 610: precisa 615, 595 < 615 → não cabe
+  - Barra 1 fechada. Peças: [1200, 900]. Sobra bruta: 595. Sobra exibida: 595 − 5 = **590 mm**
 
-- Barra 3 (capacidade efetiva 2705):
-  - Coloca 900 → restam 1800
-  - Coloca 610 → restam 1185
-  - Coloca 610 → restam 570
-  - Barra 3 fechada. Peças: [900, 610, 610]. Sobra: 570 mm
+- Barra 2 (capacidade real 2700 mm):
+  - Coloca 1200 (primeira peça) → restam 1500
+  - Coloca 900 (precisa 905) → restam 595
+  - Tenta 900: não cabe. Tenta 610: não cabe.
+  - Barra 2 fechada. Peças: [1200, 900]. Sobra bruta: 595. Sobra exibida: **590 mm**
+
+- Barra 3 (capacidade real 2700 mm):
+  - Coloca 900 (primeira peça) → restam 1800
+  - Coloca 610 (precisa 615) → restam 1800 − 615 = 1185
+  - Coloca 610 (precisa 615) → restam 1185 − 615 = 570
+  - Barra 3 fechada. Peças: [900, 610, 610]. Sobra bruta: 570. Sobra exibida: 570 − 5 = **565 mm**
 
 **Resultado: 3 barras**
+- Barra 1: 1200 + 900 | sobra: 590 mm
+- Barra 2: 1200 + 900 | sobra: 590 mm
+- Barra 3: 900 + 610 + 610 | sobra: 565 mm
 
 ---
 
@@ -153,9 +170,10 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 2. A aplicação será usada em navegadores modernos (Chrome, Edge, Firefox atuais) — sem necessidade de suporte a Internet Explorer ou navegadores legados.
 3. O uso será desktop ou laptop — o layout prioriza telas médias/grandes, mas deve ser funcional em mobile.
 4. Não há requisito de autenticação ou controle de acesso — a página é aberta diretamente no navegador.
-5. O modelo de perda por corte (5 mm por corte) aplica-se a cada corte entre peças, inclusive o corte que separa a primeira peça da barra (adotando o modelo "2705 mm efetivos" descrito acima).
+5. O modelo de perda por corte (5 mm por corte) aplica-se apenas aos cortes entre peças. A primeira peça de cada barra não gera perda de corte — ela começa na extremidade da barra.
 6. Não existe restrição de quantidade mínima de barras para pedido — o sistema calcula o mínimo matemático.
-7. Peças com comprimento exatamente igual a 2700 mm são válidas (uma peça por barra, sem corte, sobra zero).
+7. Peças com comprimento exatamente igual a 2700 mm são válidas (uma peça por barra, sem corte, sobra exibida zero).
+8. A aplicação será hospedada no GitHub Pages. Por isso, não pode depender de nenhum servidor, backend, linguagem de servidor ou chamada a APIs externas. Todo o processamento ocorre exclusivamente no navegador do usuário.
 
 ---
 
@@ -168,7 +186,7 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 | Usuário informar comprimento maior que 2700 mm | Alta (erro humano) | Alto (cálculo inválido) | Validação obrigatória no campo: máximo 2700 mm |
 | Usuário informar quantidade zero ou negativa | Média | Alto | Validação obrigatória: mínimo 1 |
 | Confusão entre esta versão e a versão de vendas | Média | Médio | Título explícito "– Liberação" e identidade visual completamente diferente |
-| Sobra exibida de forma inconsistente | Baixa | Médio | Definir na implementação se a sobra é bruta ou descontando o último corte, e manter consistente |
+| Sobra exibida de forma inconsistente | Muito baixa | Médio | Regra definida no PRD: sobra exibida = sobra bruta − 5 mm, exceto quando sobra bruta = 0 (exibir 0 mm sem desconto). Implementar conforme especificado. |
 
 ---
 
@@ -180,15 +198,16 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 - 900 mm × 3 peças
 
 **Processamento esperado:**
-- Lista: [900, 900, 900]
-- Peças por barra (capacidade 2705): ⌊2705 / 905⌋ = 2 peças
-- Barra 1: [900, 900] — sobra: 2705 − 905 − 905 = 895 mm
-- Barra 2: [900] — sobra: 2705 − 905 = 1800 mm
+- Lista ordenada: [900, 900, 900]
+- Barra 1: coloca 900 (primeira peça, restam 2700 − 900 = 1800); coloca 900 (precisa 905, restam 1800 − 905 = 895); tenta 900 (precisa 905, 895 < 905 → não cabe)
+- Barra 1 fechada: [900, 900]. Sobra bruta: 895. Sobra exibida: 895 − 5 = 890 mm
+- Barra 2: coloca 900 (primeira peça, restam 1800)
+- Barra 2 fechada: [900]. Sobra bruta: 1800. Sobra exibida: 1800 − 5 = 1795 mm
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 900 + 900 | sobra: 895 mm
-- Barra 2: 900 | sobra: 1800 mm
+- Barra 1: 900 + 900 | sobra: 890 mm
+- Barra 2: 900 | sobra: 1795 mm
 
 ---
 
@@ -200,13 +219,15 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 
 **Processamento esperado:**
 - Lista ordenada: [1200, 1200, 610, 610, 610]
-- Barra 1: coloca 1200 (restam 1500), coloca 610 (restam 885), coloca 610 (restam 270) — não cabe mais nada
-- Barra 2: coloca 1200 (restam 1500), coloca 610 (restam 885)
+- Barra 1: coloca 1200 (primeira peça, restam 1500); coloca 610 (precisa 615, restam 885); coloca 610 (precisa 615, restam 270) — não cabe mais nada
+- Barra 1 fechada: [1200, 610, 610]. Sobra bruta: 270. Sobra exibida: 270 − 5 = 265 mm
+- Barra 2: coloca 1200 (primeira peça, restam 1500); coloca 610 (precisa 615, restam 885)
+- Barra 2 fechada: [1200, 610]. Sobra bruta: 885. Sobra exibida: 885 − 5 = 880 mm
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 1200 + 610 + 610 | sobra: 270 mm
-- Barra 2: 1200 + 610 | sobra: 885 mm
+- Barra 1: 1200 + 610 + 610 | sobra: 265 mm
+- Barra 2: 1200 + 610 | sobra: 880 mm
 
 ---
 
@@ -216,14 +237,16 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 - 2700 mm × 2 peças
 
 **Processamento esperado:**
-- Lista: [2700, 2700]
-- Barra 1: coloca 2700 (restam 0)
-- Barra 2: coloca 2700 (restam 0)
+- Lista ordenada: [2700, 2700]
+- Barra 1: coloca 2700 (primeira peça, sem perda de corte, restam 2700 − 2700 = 0)
+- Barra 1 fechada: [2700]. Sobra bruta: 0. Sobra exibida: 0 mm (exceção: sobra bruta = 0 → exibir 0 mm sem desconto)
+- Barra 2: coloca 2700 (primeira peça, restam 0). Mesma condição.
+- Barra 2 fechada: [2700]. Sobra exibida: 0 mm
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 2700 | sobra: 0 mm
-- Barra 2: 2700 | sobra: 0 mm
+- Barra 1: 2700 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
+- Barra 2: 2700 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
 
 ---
 
@@ -239,16 +262,19 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 - **Total: 4 barras**
 
 **Com algoritmo de mix (esta versão):**
-- Lista: [1350, 1350, 1340, 1340]
-- Barra 1: 1350 (restam 1350), 1340 não cabe (precisa 1345, restam 1350 — cabe!) → [1350, 1340]  
-  Verificação: 1350+5+1340+5 = 2700 ≤ 2705 ✓
-- Barra 2: 1350 (restam 1350), 1340 → igual
+- Lista ordenada: [1350, 1350, 1340, 1340]
+- Barra 1: coloca 1350 (primeira peça, restam 2700 − 1350 = 1350)
+  - Tenta 1350 (segunda peça, precisa 1355): 1350 < 1355 → não cabe
+  - Tenta 1340 (precisa 1345): 1350 ≥ 1345 → cabe. Restam 1350 − 1345 = 5
+  - Barra 1 fechada: [1350, 1340]. Sobra bruta: 5. Sobra exibida: 5 − 5 = 0 mm
+- Barra 2: mesmo processamento que a Barra 1
+  - Barra 2 fechada: [1350, 1340]. Sobra exibida: 0 mm
 - **Total: 2 barras**
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 1350 + 1340 | sobra: 5 mm
-- Barra 2: 1350 + 1340 | sobra: 5 mm
+- Barra 1: 1350 + 1340 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
+- Barra 2: 1350 + 1340 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
 
 ---
 
@@ -256,12 +282,14 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 
 | Situação | Comportamento esperado |
 |---|---|
-| Campo comprimento vazio | Botão "Calcular" não executa; mensagem de erro visível |
-| Campo quantidade vazio | Idem |
-| Comprimento = 0 | Idem |
-| Comprimento > 2700 mm | Campo rejeita a entrada (validação HTML max) ou exibe erro ao calcular |
-| Quantidade negativa | Campo rejeita (validação HTML min=1) ou exibe erro ao calcular |
+| Campo comprimento vazio | Campo recebe borda vermelha; cálculo não é executado |
+| Campo quantidade vazio | Campo recebe borda vermelha; cálculo não é executado |
+| Comprimento = 0 | Campo recebe borda vermelha; cálculo não é executado |
+| Comprimento > 2700 mm | Campo recebe borda vermelha; cálculo não é executado |
+| Quantidade negativa | Campo recebe borda vermelha; cálculo não é executado |
 | Todas as linhas removidas, usuário clica em calcular | Mensagem indicando que não há medidas informadas |
+
+> **Nota de implementação:** nenhum `alert()` do navegador deve ser usado em nenhuma dessas situações. O feedback ao usuário ocorre exclusivamente por meio de destaque visual no campo problemático (borda vermelha) e/ou mensagem inline na interface.
 
 ---
 
@@ -272,6 +300,24 @@ A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a
 - Cada linha pode ser removida individualmente
 - O resultado aparece suavemente (animação) abaixo do formulário
 - A página é utilizável em telas a partir de 360 px de largura
+
+---
+
+### Cenário 7 — Aviso de sobra mínima
+
+**Entrada:**
+- 1350 mm × 1 peça
+- 1330 mm × 1 peça
+
+**Processamento esperado:**
+- Lista ordenada: [1350, 1330]
+- Barra 1: coloca 1350 (primeira peça, restam 2700 − 1350 = 1350); coloca 1330 (precisa 1335, restam 1350 − 1335 = 15)
+- Barra 1 fechada: [1350, 1330]. Sobra bruta: 15. Sobra exibida: 15 − 5 = 10 mm
+- Última barra com sobra exibida = 10 mm (> 0 e < 30) → exibir aviso de sobra mínima
+
+**Saída esperada:**
+- Total: 1 barra
+- Barra 1: 1350 + 1330 | sobra: 10 mm *(aviso: "Sobra abaixo de 30 mm — considere adicionar uma barra de reserva.")*
 
 ---
 
