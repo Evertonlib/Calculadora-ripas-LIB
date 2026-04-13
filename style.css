@@ -259,7 +259,7 @@ input[type="number"].campo-erro {
 /* ── Área de resultado ── */
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 @keyframes fadeSlideIn {
@@ -284,6 +284,41 @@ input[type="number"].campo-erro {
   color: var(--cor-destaque);
   font-weight: bold;
   margin-bottom: 1rem;
+}
+
+#resumo-medidas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.resumo-medida {
+  background-color: #242424;
+  border-left: 3px solid var(--cor-destaque);
+  padding: 0.65rem 1rem;
+  border-radius: var(--raio-borda);
+  font-family: 'Courier New', monospace;
+  color: var(--cor-texto);
+}
+
+#btn-toggle-detalhamento {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  margin-bottom: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--cor-destaque);
+  color: var(--cor-destaque);
+  border-radius: var(--raio-borda);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color var(--transicao), color var(--transicao);
+}
+
+#btn-toggle-detalhamento:hover {
+  background-color: var(--cor-destaque);
+  color: #1A1A1A;
 }
 
 #detalhamento {

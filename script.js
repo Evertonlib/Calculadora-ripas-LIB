@@ -62,6 +62,33 @@ function renderizarResultado(barras) {
     ? '1 barra necessária'
     : `${barras.length} barras necessárias`;
 
+  const resumoEl = document.getElementById('resumo-medidas');
+  resumoEl.innerHTML = '';
+
+  const grupos = new Map();
+  barras.forEach((barra, i) => {
+    barra.pecas.forEach(p => {
+      if (!grupos.has(p)) {
+        grupos.set(p, { quantidade: 0, barrasSet: new Set() });
+      }
+      const g = grupos.get(p);
+      g.quantidade += 1;
+      g.barrasSet.add(i);
+    });
+  });
+
+  const medidasOrdenadas = [...grupos.entries()].sort((a, b) => b[0] - a[0]);
+
+  medidasOrdenadas.forEach(([comprimento, g]) => {
+    const linha = document.createElement('p');
+    linha.className = 'resumo-medida';
+    const numBarras = g.barrasSet.size;
+    const barrasLabel = numBarras === 1 ? 'barra' : 'barras';
+    linha.textContent =
+      `${comprimento} mm · ${g.quantidade} pç → ${numBarras} ${barrasLabel}`;
+    resumoEl.appendChild(linha);
+  });
+
   const detalhamento = document.getElementById('detalhamento');
   const ultimaIdx = barras.length - 1;
 
@@ -85,6 +112,16 @@ function renderizarResultado(barras) {
 
     detalhamento.appendChild(item);
   });
+
+  detalhamento.classList.add('hidden');
+  const btnToggle = document.getElementById('btn-toggle-detalhamento');
+  btnToggle.textContent = 'Ver detalhamento completo';
+  btnToggle.onclick = () => {
+    const ocultoAgora = detalhamento.classList.toggle('hidden');
+    btnToggle.textContent = ocultoAgora
+      ? 'Ver detalhamento completo'
+      : 'Ocultar detalhamento';
+  };
 
   const resultado = document.getElementById('resultado');
   resultado.classList.remove('hidden');
