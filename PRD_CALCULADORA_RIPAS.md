@@ -1,0 +1,290 @@
+# PRD — Calculadora de Ripas/Rodaforros · Versão Liberação Técnica
+
+**Projeto:** Calculadora-ripas-LIB  
+**Data:** 2026-04-13  
+**Status:** Aguardando aprovação  
+
+---
+
+## 1. Objetivo
+
+Criar uma calculadora web de corte de ripas/rodaforros voltada exclusivamente para o setor interno de liberação técnica da By Arabi Planejados. A diferença central em relação à versão de vendas (Calculadora-ripas) é o algoritmo de cálculo: em vez de tratar cada medida de forma isolada, esta versão otimiza o aproveitamento das barras tratando todas as peças como um conjunto único — maximizando o rendimento e minimizando o número de barras necessárias.
+
+---
+
+## 2. Contexto — O que existe hoje
+
+O repositório `Calculadora-ripas` (versão de vendas) contém um único arquivo `index.html` com HTML, CSS e JavaScript embutidos. O algoritmo atual calcula cada medida de forma independente: para cada linha da tabela, divide a quantidade de peças daquela medida pelo número de peças que cabem numa barra, arredondando para cima. Esse modelo é simples e correto para vendas, mas desperdiça barras quando existem sobras que poderiam acomodar peças de outras medidas do mesmo pedido.
+
+Este novo projeto (`Calculadora-ripas-LIB`) é um repositório separado, independente, com código próprio e identidade visual própria da marca.
+
+---
+
+## 3. O que será criado
+
+### 3.1 Arquivos
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `index.html` | Estrutura da página, campos de entrada, área de resultado |
+| `style.css` | Toda a estilização, paleta de cores, responsividade |
+| `script.js` | Lógica de cálculo, manipulação do DOM, gerenciamento das linhas de entrada |
+
+Nenhum framework externo. Nenhuma biblioteca de terceiros. JavaScript puro, CSS puro, HTML semântico.
+
+### 3.2 Interface
+
+**Cabeçalho:**
+- Logo da empresa (arquivo `logo_by-arabi.png`, localizado na raiz do projeto)
+- Título: "Calculadora de Ripas/Rodaforros – Liberação"
+
+**Parâmetros fixos (exibidos como informação, não editáveis):**
+- Comprimento da barra: 2700 mm
+- Perda por corte: 5 mm
+
+**Área de entrada:**
+- Ao abrir a página, já existe uma linha com dois campos: comprimento (mm) e quantidade
+- Botão "+ Adicionar Medida" inclui novas linhas dinamicamente
+- Cada linha possui um botão para remoção individual
+- Campos numéricos com validação de valores positivos e comprimento máximo de 2700 mm
+
+**Botão de ação:**
+- "Calcular" executa o algoritmo de otimização
+
+**Área de resultado (oculta até o cálculo):**
+- Número total de barras necessárias em destaque
+- Detalhamento barra a barra mostrando quais peças foram alocadas e a sobra restante
+  - Exemplo: `Barra 1: 1200 + 610 + 610 | sobra: 275 mm`
+
+### 3.3 Identidade Visual
+
+| Elemento | Valor |
+|---|---|
+| Fundo geral | `#1A1A1A` (escuro) |
+| Cor de destaque | `#C9A84C` (dourado) |
+| Cor de texto secundário / superfícies | `#F5EDD6` (bege claro) |
+| Texto principal | `#FAFAF8` (branco suave) |
+| Estilo geral | Moderno, limpo, profissional — condizente com a marca By Arabi Planejados |
+
+A paleta é completamente diferente da versão de vendas (que usa tons terrosos de madeira). Esta versão usa a identidade oficial da empresa.
+
+---
+
+## 4. Lógica de cálculo — Otimização de Mix (First Fit Decreasing)
+
+Esta é a diferença central do projeto. O algoritmo não trata cada medida de forma isolada.
+
+### Modelo de perda por corte
+
+A barra tem 2700 mm. Cada corte desperdiça 5 mm de material. Para simplificar a implementação, trata-se a barra como tendo capacidade efetiva de 2705 mm, e cada peça colocada consome (comprimento da peça + 5 mm). Isso é algebricamente equivalente a dizer que a primeira peça de cada barra não gera perda no início, mas todas as peças seguintes geram 5 mm de perda no corte que as separa da próxima.
+
+### Passo a passo do algoritmo
+
+1. **Expandir** todas as peças em uma lista única. Três peças de 900 mm e duas de 1200 mm viram a lista: [900, 900, 900, 1200, 1200].
+
+2. **Ordenar** essa lista da maior para a menor (ordem decrescente). A lista do exemplo fica: [1200, 1200, 900, 900, 900].
+
+3. **Alocar barra a barra**, usando o método "First Fit Decreasing":
+   - Para cada peça da lista (da maior para a menor), tenta encaixá-la na primeira barra aberta onde ela caiba.
+   - Uma peça cabe numa barra se o espaço restante da barra for maior ou igual a (comprimento da peça + 5 mm).
+   - Se a peça não couber em nenhuma barra aberta, abre uma nova barra e coloca a peça nela.
+   - Quando uma peça é colocada numa barra, o espaço restante daquela barra é reduzido em (comprimento da peça + 5 mm).
+
+4. **Registrar** em cada barra a lista de peças alocadas e o espaço restante final.
+
+5. **Exibir** o total de barras usadas e o detalhamento de cada barra.
+
+### Exemplo completo
+
+**Entrada:**
+- 1200 mm × 2 peças
+- 900 mm × 3 peças
+- 610 mm × 2 peças
+
+**Lista expandida e ordenada:** [1200, 1200, 900, 900, 900, 610, 610]
+
+**Alocação:**
+- Barra 1 (capacidade efetiva 2705):
+  - Coloca 1200 → restam 2705 − 1205 = 1500
+  - Coloca 900 → restam 1500 − 905 = 595
+  - Tenta 900: precisa de 905, não cabe
+  - Coloca 610: precisa de 615, não cabe (595 < 615)
+  - Barra 1 fechada. Peças: [1200, 900]. Sobra real: 600 − 5 = 595 mm
+  
+  > Nota: a sobra exibida ao usuário deve ser o espaço restante menos 5 mm (o último corte que separaria a sobra) ou simplesmente o espaço restante bruto — a definir na implementação, desde que seja consistente.
+
+- Barra 2 (capacidade efetiva 2705):
+  - Coloca 1200 → restam 1500
+  - Coloca 900 → restam 595
+  - Coloca 610: não cabe
+  - Barra 2 fechada. Peças: [1200, 900]. Sobra: 595 mm
+
+- Barra 3 (capacidade efetiva 2705):
+  - Coloca 900 → restam 1800
+  - Coloca 610 → restam 1185
+  - Coloca 610 → restam 570
+  - Barra 3 fechada. Peças: [900, 610, 610]. Sobra: 570 mm
+
+**Resultado: 3 barras**
+
+---
+
+## 5. O que não será tocado
+
+- O repositório `Calculadora-ripas` (versão de vendas) não será modificado em nenhum aspecto.
+- O arquivo `logo_by-arabi.png` será apenas referenciado no HTML — não será editado.
+- Nenhuma dependência externa será adicionada ao projeto.
+
+---
+
+## 6. O que será removido / o que não existirá neste projeto
+
+- Não haverá algoritmo de cálculo por medida isolada (o modelo da versão de vendas não existirá aqui).
+- Não haverá campos para edição dos parâmetros fixos pelo usuário.
+- Não haverá persistência de dados (sem localStorage).
+- Não haverá funcionalidade de exportação ou impressão (fora do escopo desta versão).
+- Não haverá histórico de cálculos anteriores.
+
+---
+
+## 7. Premissas assumidas
+
+1. O arquivo `logo_by-arabi.png` já existe na raiz do repositório `Calculadora-ripas-LIB` e está em formato e resolução adequados para exibição web.
+2. A aplicação será usada em navegadores modernos (Chrome, Edge, Firefox atuais) — sem necessidade de suporte a Internet Explorer ou navegadores legados.
+3. O uso será desktop ou laptop — o layout prioriza telas médias/grandes, mas deve ser funcional em mobile.
+4. Não há requisito de autenticação ou controle de acesso — a página é aberta diretamente no navegador.
+5. O modelo de perda por corte (5 mm por corte) aplica-se a cada corte entre peças, inclusive o corte que separa a primeira peça da barra (adotando o modelo "2705 mm efetivos" descrito acima).
+6. Não existe restrição de quantidade mínima de barras para pedido — o sistema calcula o mínimo matemático.
+7. Peças com comprimento exatamente igual a 2700 mm são válidas (uma peça por barra, sem corte, sobra zero).
+
+---
+
+## 8. Riscos identificados
+
+| Risco | Probabilidade | Impacto | Mitigação |
+|---|---|---|---|
+| Logo ausente ou com caminho incorreto | Baixa | Baixo (visual apenas) | Testar com a imagem presente antes de entregar |
+| Entradas muito grandes (ex: 1000 peças) causando lentidão | Baixa | Médio | O algoritmo FFD é O(n²) no pior caso; para quantidades típicas de obra (até ~200 peças totais) é imperceptível |
+| Usuário informar comprimento maior que 2700 mm | Alta (erro humano) | Alto (cálculo inválido) | Validação obrigatória no campo: máximo 2700 mm |
+| Usuário informar quantidade zero ou negativa | Média | Alto | Validação obrigatória: mínimo 1 |
+| Confusão entre esta versão e a versão de vendas | Média | Médio | Título explícito "– Liberação" e identidade visual completamente diferente |
+| Sobra exibida de forma inconsistente | Baixa | Médio | Definir na implementação se a sobra é bruta ou descontando o último corte, e manter consistente |
+
+---
+
+## 9. Critérios de aceitação
+
+### Cenário 1 — Caso base simples
+
+**Entrada:**
+- 900 mm × 3 peças
+
+**Processamento esperado:**
+- Lista: [900, 900, 900]
+- Peças por barra (capacidade 2705): ⌊2705 / 905⌋ = 2 peças
+- Barra 1: [900, 900] — sobra: 2705 − 905 − 905 = 895 mm
+- Barra 2: [900] — sobra: 2705 − 905 = 1800 mm
+
+**Saída esperada:**
+- Total: 2 barras
+- Barra 1: 900 + 900 | sobra: 895 mm
+- Barra 2: 900 | sobra: 1800 mm
+
+---
+
+### Cenário 2 — Mix com aproveitamento entre medidas
+
+**Entrada:**
+- 1200 mm × 2 peças
+- 610 mm × 3 peças
+
+**Processamento esperado:**
+- Lista ordenada: [1200, 1200, 610, 610, 610]
+- Barra 1: coloca 1200 (restam 1500), coloca 610 (restam 885), coloca 610 (restam 270) — não cabe mais nada
+- Barra 2: coloca 1200 (restam 1500), coloca 610 (restam 885)
+
+**Saída esperada:**
+- Total: 2 barras
+- Barra 1: 1200 + 610 + 610 | sobra: 270 mm
+- Barra 2: 1200 + 610 | sobra: 885 mm
+
+---
+
+### Cenário 3 — Peça com comprimento máximo (2700 mm)
+
+**Entrada:**
+- 2700 mm × 2 peças
+
+**Processamento esperado:**
+- Lista: [2700, 2700]
+- Barra 1: coloca 2700 (restam 0)
+- Barra 2: coloca 2700 (restam 0)
+
+**Saída esperada:**
+- Total: 2 barras
+- Barra 1: 2700 | sobra: 0 mm
+- Barra 2: 2700 | sobra: 0 mm
+
+---
+
+### Cenário 4 — Otimização demonstrável (diferença vs. versão isolada)
+
+**Entrada:**
+- 1350 mm × 2 peças
+- 1340 mm × 2 peças
+
+**Com algoritmo isolado (versão vendas):**
+- 1350: 1 peça/barra × 2 = 2 barras
+- 1340: 1 peça/barra × 2 = 2 barras
+- **Total: 4 barras**
+
+**Com algoritmo de mix (esta versão):**
+- Lista: [1350, 1350, 1340, 1340]
+- Barra 1: 1350 (restam 1350), 1340 não cabe (precisa 1345, restam 1350 — cabe!) → [1350, 1340]  
+  Verificação: 1350+5+1340+5 = 2700 ≤ 2705 ✓
+- Barra 2: 1350 (restam 1350), 1340 → igual
+- **Total: 2 barras**
+
+**Saída esperada:**
+- Total: 2 barras
+- Barra 1: 1350 + 1340 | sobra: 5 mm
+- Barra 2: 1350 + 1340 | sobra: 5 mm
+
+---
+
+### Cenário 5 — Erros de entrada
+
+| Situação | Comportamento esperado |
+|---|---|
+| Campo comprimento vazio | Botão "Calcular" não executa; mensagem de erro visível |
+| Campo quantidade vazio | Idem |
+| Comprimento = 0 | Idem |
+| Comprimento > 2700 mm | Campo rejeita a entrada (validação HTML max) ou exibe erro ao calcular |
+| Quantidade negativa | Campo rejeita (validação HTML min=1) ou exibe erro ao calcular |
+| Todas as linhas removidas, usuário clica em calcular | Mensagem indicando que não há medidas informadas |
+
+---
+
+### Cenário 6 — Usabilidade
+
+- Ao abrir a página, já existe uma linha de entrada pronta para uso (sem precisar clicar em adicionar)
+- O botão "+ Adicionar Medida" funciona ilimitadamente
+- Cada linha pode ser removida individualmente
+- O resultado aparece suavemente (animação) abaixo do formulário
+- A página é utilizável em telas a partir de 360 px de largura
+
+---
+
+## 10. Fora do escopo desta versão
+
+- Múltiplos comprimentos de barra
+- Exportação para PDF ou impressão
+- Persistência de dados entre sessões
+- Histórico de cálculos
+- Cálculo de custo financeiro
+- Integração com qualquer sistema externo
+- Autenticação ou login
+
+---
+
+*Documento gerado para aprovação antes do início da implementação.*
