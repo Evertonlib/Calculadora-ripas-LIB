@@ -14,7 +14,6 @@ Calculadora-ripas-LIB/
 ├── index.html
 ├── style.css
 ├── script.js
-├── logo_by-arabi.png        ← já existente, não modificar
 ├── PRD_CALCULADORA_RIPAS.md
 └── SPEC_CALCULADORA_RIPAS.md
 ```
@@ -50,7 +49,7 @@ Sem dependências externas. Sem `package.json`, sem `node_modules`, sem bundler.
 
 ### 2.2 Header
 
-- `<img>` com `src="logo_by-arabi.png"` e `alt="By Arabi Planejados"`.
+- `<div class="marca">` contendo o logotipo CSS: `.marca-arco` (arco dourado decorativo via CSS puro), `.marca-linha1` com a letra "Y" isolada em `<span class="marca-y-letra">` (cor `#F4C542`), `.marca-divisor` (linha gradiente dourada) e `.marca-linha2` ("PLANEJADOS" com espaçamento de letras). Sem arquivo de imagem.
 - `<h1>` com texto exato: **"Calculadora de Ripas/Rodaforros – Liberação"**.
 - Nenhum link ou navegação.
 
@@ -121,7 +120,7 @@ Nenhum `<input>` nesta seção.
 
 ### 3.3 Header
 
-- Logo centralizada horizontalmente, altura máxima `80px`, mantendo proporção.
+- Logotipo CSS (`.marca`) centralizado horizontalmente via `text-align: center` no `header`.
 - `<h1>` centralizado, cor `var(--cor-destaque)`, tamanho entre `1.4rem` e `1.8rem`.
 - Padding vertical confortável (`1.5rem 1rem`).
 - Separador inferior sutil (border-bottom `1px solid` com opacidade).
@@ -291,15 +290,9 @@ Função que lê o DOM e retorna `{ valido: boolean, pecas: number[] }`.
 
 Dois avisos possíveis, avaliados na renderização:
 
-**Aviso A — Barra utilizada integralmente:**
-- Condição: `barra.sobraExibida === 0`
-- Texto: `"Barra utilizada integralmente — confirme se o corte inicial é necessário."`
-- Aplicado a **cada barra** individualmente que cumpra a condição.
-
-**Aviso B — Sobra mínima:**
-- Condição: aplicado **apenas à última barra** do resultado; `sobraExibida > 0` e `sobraExibida < 30`.
+**Aviso — Sobra mínima:**
+- Condição: aplicado **apenas à última barra** do resultado; `sobraExibida < 30` (incluindo 0 mm).
 - Texto: `"Sobra abaixo de 30 mm — considere adicionar uma barra de reserva."`
-- Se a última barra já disparar o Aviso A (sobraExibida === 0), o Aviso B não se aplica.
 
 ### 4.8 Gerenciamento de linhas
 
@@ -343,7 +336,7 @@ Nenhum outro estado global ou variável compartilhada entre funções — toda l
 | Situação | Comportamento |
 |---|---|
 | Todas as linhas removidas → clicar Calcular | Mensagem inline `"Informe ao menos uma medida."` na seção de entradas; resultado não exibido |
-| Uma única peça de 2700 mm | 1 barra, sobraExibida = 0, Aviso A exibido |
+| Uma única peça de 2700 mm | 1 barra, sobraExibida = 0, aviso de sobra mínima exibido |
 | Comprimento digitado com vírgula (ex.: `1.200`) | Input type="number" trata automaticamente; número com ponto decimal não inteiro gera campo inválido |
 | Quantidade fracionada (ex.: `2.5`) | Campo quantidade inválido (regra: deve ser inteiro ≥ 1) — verificado com `Number.isInteger()` |
 | Usuário remove e adiciona linhas múltiplas vezes | Nenhum estado interno acumulado — cada cálculo lê o DOM do zero |

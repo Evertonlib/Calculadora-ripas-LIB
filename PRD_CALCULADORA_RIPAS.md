@@ -35,7 +35,7 @@ Nenhum framework externo. Nenhuma biblioteca de terceiros. JavaScript puro, CSS 
 ### 3.2 Interface
 
 **Cabeçalho:**
-- Logo da empresa (arquivo `logo_by-arabi.png`, localizado na raiz do projeto)
+- Logotipo da empresa recriado em CSS puro: arco dourado decorativo + texto "BY ARABI" (letra "Y" em `#F4C542`) + linha divisória dourada + "PLANEJADOS" com espaçamento de letras. Sem arquivo de imagem externo.
 - Título: "Calculadora de Ripas/Rodaforros – Liberação"
 
 **Parâmetros fixos (exibidos como informação, não editáveis):**
@@ -106,8 +106,7 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 ### Avisos de resultado
 
-- **Barra utilizada integralmente:** quando a sobra exibida de uma barra for 0 mm, exibir junto ao detalhamento dessa barra o aviso: *"Barra utilizada integralmente — confirme se o corte inicial é necessário."*
-- **Sobra mínima:** quando a última barra do resultado tiver sobra exibida menor que 30 mm e maior que 0 mm, exibir o aviso: *"Sobra abaixo de 30 mm — considere adicionar uma barra de reserva."*
+- **Sobra mínima:** quando a última barra do resultado tiver sobra exibida menor que 30 mm (incluindo 0 mm), exibir o aviso: *"Sobra abaixo de 30 mm — considere adicionar uma barra de reserva."*
 
 ### Exemplo completo
 
@@ -122,34 +121,34 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 - Barra 1 (capacidade real 2700 mm):
   - Coloca 1200 (primeira peça, sem perda de corte) → restam 2700 − 1200 = 1500
-  - Coloca 900 (segunda peça, precisa 900 + 5 = 905): 1500 ≥ 905 → restam 1500 − 905 = 595
-  - Tenta 900: precisa 905, 595 < 905 → não cabe
-  - Tenta 610: precisa 615, 595 < 615 → não cabe
-  - Barra 1 fechada. Peças: [1200, 900]. Sobra bruta: 595. Sobra exibida: 595 − 5 = **590 mm**
+  - Tenta 1200 (segunda peça, precisa 1200 + 5 = 1205): 1500 ≥ 1205 → cabe. Restam 1500 − 1205 = 295
+  - Tenta 900: precisa 905, 295 < 905 → não cabe
+  - Tenta 610: precisa 615, 295 < 615 → não cabe
+  - Barra 1 fechada. Peças: [1200, 1200]. Sobra bruta: 295. Sobra exibida: 295 − 5 = **290 mm**
 
 - Barra 2 (capacidade real 2700 mm):
-  - Coloca 1200 (primeira peça) → restam 1500
-  - Coloca 900 (precisa 905) → restam 595
-  - Tenta 900: não cabe. Tenta 610: não cabe.
-  - Barra 2 fechada. Peças: [1200, 900]. Sobra bruta: 595. Sobra exibida: **590 mm**
+  - Coloca 900 (primeira peça, sem perda de corte) → restam 2700 − 900 = 1800
+  - Tenta 900 (segunda peça, precisa 900 + 5 = 905): 1800 ≥ 905 → cabe. Restam 1800 − 905 = 895
+  - Tenta 900: precisa 905, 895 < 905 → não cabe
+  - Tenta 610 (precisa 615): 895 ≥ 615 → cabe. Restam 895 − 615 = 280
+  - Tenta 610: precisa 615, 280 < 615 → não cabe
+  - Barra 2 fechada. Peças: [900, 900, 610]. Sobra bruta: 280. Sobra exibida: 280 − 5 = **275 mm**
 
 - Barra 3 (capacidade real 2700 mm):
-  - Coloca 900 (primeira peça) → restam 1800
-  - Coloca 610 (precisa 615) → restam 1800 − 615 = 1185
-  - Coloca 610 (precisa 615) → restam 1185 − 615 = 570
-  - Barra 3 fechada. Peças: [900, 610, 610]. Sobra bruta: 570. Sobra exibida: 570 − 5 = **565 mm**
+  - Coloca 900 (primeira peça, sem perda de corte) → restam 2700 − 900 = 1800
+  - Tenta 610 (segunda peça, precisa 610 + 5 = 615): 1800 ≥ 615 → cabe. Restam 1800 − 615 = 1185
+  - Barra 3 fechada. Peças: [900, 610]. Sobra bruta: 1185. Sobra exibida: 1185 − 5 = **1180 mm**
 
 **Resultado: 3 barras**
-- Barra 1: 1200 + 900 | sobra: 590 mm
-- Barra 2: 1200 + 900 | sobra: 590 mm
-- Barra 3: 900 + 610 + 610 | sobra: 565 mm
+- Barra 1: 1200 + 1200 | sobra: 290 mm
+- Barra 2: 900 + 900 + 610 | sobra: 275 mm
+- Barra 3: 900 + 610 | sobra: 1180 mm
 
 ---
 
 ## 5. O que não será tocado
 
 - O repositório `Calculadora-ripas` (versão de vendas) não será modificado em nenhum aspecto.
-- O arquivo `logo_by-arabi.png` será apenas referenciado no HTML — não será editado.
 - Nenhuma dependência externa será adicionada ao projeto.
 
 ---
@@ -166,7 +165,7 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 ## 7. Premissas assumidas
 
-1. O arquivo `logo_by-arabi.png` já existe na raiz do repositório `Calculadora-ripas-LIB` e está em formato e resolução adequados para exibição web.
+1. O logotipo da empresa é recriado integralmente em CSS puro — sem dependência de arquivo de imagem externo.
 2. A aplicação será usada em navegadores modernos (Chrome, Edge, Firefox atuais) — sem necessidade de suporte a Internet Explorer ou navegadores legados.
 3. O uso será desktop ou laptop — o layout prioriza telas médias/grandes, mas deve ser funcional em mobile.
 4. Não há requisito de autenticação ou controle de acesso — a página é aberta diretamente no navegador.
@@ -181,7 +180,6 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
-| Logo ausente ou com caminho incorreto | Baixa | Baixo (visual apenas) | Testar com a imagem presente antes de entregar |
 | Entradas muito grandes (ex: 1000 peças) causando lentidão | Baixa | Médio | O algoritmo FFD é O(n²) no pior caso; para quantidades típicas de obra (até ~200 peças totais) é imperceptível |
 | Usuário informar comprimento maior que 2700 mm | Alta (erro humano) | Alto (cálculo inválido) | Validação obrigatória no campo: máximo 2700 mm |
 | Usuário informar quantidade zero ou negativa | Média | Alto | Validação obrigatória: mínimo 1 |
@@ -245,8 +243,8 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 2700 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
-- Barra 2: 2700 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
+- Barra 1: 2700 | sobra: 0 mm
+- Barra 2: 2700 | sobra: 0 mm *(aviso: "Sobra abaixo de 30 mm — considere adicionar uma barra de reserva.")*
 
 ---
 
@@ -273,8 +271,8 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 
 **Saída esperada:**
 - Total: 2 barras
-- Barra 1: 1350 + 1340 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
-- Barra 2: 1350 + 1340 | sobra: 0 mm *(aviso: "Barra utilizada integralmente — confirme se o corte inicial é necessário.")*
+- Barra 1: 1350 + 1340 | sobra: 0 mm
+- Barra 2: 1350 + 1340 | sobra: 0 mm *(aviso: "Sobra abaixo de 30 mm — considere adicionar uma barra de reserva.")*
 
 ---
 
@@ -313,7 +311,7 @@ A sobra exibida ao usuário é calculada da seguinte forma:
 - Lista ordenada: [1350, 1330]
 - Barra 1: coloca 1350 (primeira peça, restam 2700 − 1350 = 1350); coloca 1330 (precisa 1335, restam 1350 − 1335 = 15)
 - Barra 1 fechada: [1350, 1330]. Sobra bruta: 15. Sobra exibida: 15 − 5 = 10 mm
-- Última barra com sobra exibida = 10 mm (> 0 e < 30) → exibir aviso de sobra mínima
+- Última barra com sobra exibida = 10 mm (< 30) → exibir aviso de sobra mínima
 
 **Saída esperada:**
 - Total: 1 barra

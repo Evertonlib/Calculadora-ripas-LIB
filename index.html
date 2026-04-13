@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Ripas/Rodaforros – Liberação · By Arabi</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header>
+      <div class="marca">
+        <div class="marca-arco" aria-hidden="true"></div>
+        <div class="marca-linha1">B<span class="marca-y-letra">Y</span> ARABI</div>
+        <div class="marca-divisor"></div>
+        <div class="marca-linha2">PLANEJADOS</div>
+      </div>
+      <h1>Calculadora de Ripas/Rodaforros – Liberação</h1>
+    </header>
+    <main>
+      <section id="parametros">
+        <dl>
+          <div class="param-item">
+            <dt>Comprimento da barra</dt>
+            <dd>2700 mm</dd>
+          </div>
+          <div class="param-item">
+            <dt>Perda por corte</dt>
+            <dd>5 mm</dd>
+          </div>
+        </dl>
+      </section>
+      <section id="entradas">
+        <div id="linhas-container">
+          <div class="linha-medida">
+            <input type="number" class="campo-comprimento" placeholder="Comprimento (mm)" min="1" max="2700">
+            <input type="number" class="campo-quantidade" placeholder="Qtd" min="1">
+            <button class="btn-remover" aria-label="Remover linha">×</button>
+          </div>
+        </div>
+        <button id="btn-adicionar">+ Adicionar Medida</button>
+        <button id="btn-calcular">Calcular</button>
+      </section>
+      <section id="resultado" class="hidden">
+        <p id="total-barras"></p>
+        <div id="detalhamento"></div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
