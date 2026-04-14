@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Ripas/Rodaforros – Liberação · By Arabi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
@@ -14,21 +15,24 @@
         <div class="marca-divisor"></div>
         <div class="marca-linha2">PLANEJADOS</div>
       </div>
-      <h1>Calculadora de Ripas/Rodaforros – Liberação</h1>
+      <h1>Calculadora de Ripas/Rodaforros – <em>Liberação</em></h1>
+      <p class="header-subtitle">Rodaforros e Ripas</p>
     </header>
+
     <main>
       <section id="parametros">
-        <dl>
-          <div class="param-item">
-            <dt>Comprimento da barra</dt>
-            <dd>2700 mm</dd>
+        <div class="params-chips">
+          <div class="chip">
+            <span class="chip-label">Barra</span>
+            <span class="chip-value">2700 mm</span>
           </div>
-          <div class="param-item">
-            <dt>Perda por corte</dt>
-            <dd>5 mm</dd>
+          <div class="chip">
+            <span class="chip-label">Perda por corte</span>
+            <span class="chip-value">5 mm</span>
           </div>
-        </dl>
+        </div>
       </section>
+
       <section id="entradas">
         <div id="linhas-container">
           <div class="linha-medida">
@@ -37,16 +41,20 @@
             <button class="btn-remover" aria-label="Remover linha">×</button>
           </div>
         </div>
-        <button id="btn-adicionar">+ Adicionar Medida</button>
-        <button id="btn-calcular">Calcular</button>
+        <button id="btn-adicionar" class="btn-secondary">+ Adicionar Medida</button>
+        <button id="btn-calcular" class="btn-primary">Calcular</button>
       </section>
+
       <section id="resultado" class="hidden">
-        <p id="total-barras"></p>
+        <div class="result-block">
+          <p id="total-barras"></p>
+        </div>
         <div id="resumo-medidas"></div>
-        <button id="btn-toggle-detalhamento" type="button">Ver detalhamento completo</button>
+        <button id="btn-toggle-detalhamento" class="btn-secondary" type="button">Ver detalhamento completo</button>
         <div id="detalhamento" class="hidden"></div>
       </section>
     </main>
+
     <script src="script.js"></script>
   </body>
 </html>
