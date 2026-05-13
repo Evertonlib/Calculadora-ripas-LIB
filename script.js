@@ -85,7 +85,7 @@ function renderizarResultado(barras) {
     const numBarras = g.barrasSet.size;
     const barrasLabel = numBarras === 1 ? 'barra' : 'barras';
     linha.textContent =
-      `${comprimento} mm · ${g.quantidade} pç → ${numBarras} ${barrasLabel}`;
+      `${comprimento} mm · ${g.quantidade} pç`;
     resumoEl.appendChild(linha);
   });
 
